@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-torchview = { path = "./torchview", editable = true }
+torchview = { path = "../torchview", editable = true }
 
 [build-system]
 requires = ["hatchling"]

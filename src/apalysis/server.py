@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import webbrowser
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -128,11 +127,10 @@ def _get_or_build_graph() -> dict[str, Any]:
 
 def _build_torchview_graph() -> dict[str, Any]:
     """Build graph data from the model using torchview."""
-    import subprocess
     from torchview import draw_graph
 
     if _current_model is None:
-        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}, "positions": {}}
+        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}}
 
     # Use provided input size or try to infer it
     input_size = _current_input_size
@@ -165,94 +163,12 @@ def _build_torchview_graph() -> dict[str, Any]:
         # Convert to NetworkX and then to JSON-serializable format
         nx_graph = graph.to_networkx()
         
-        # Use graphviz to compute layout positions (like showcase.py does)
-        positions = _compute_graphviz_layout(graph, nx_graph)
-        
-        result = _networkx_to_json(nx_graph)
-        result["positions"] = positions
-        return result
+        return _networkx_to_json(nx_graph)
     except Exception as e:
         import traceback
         traceback.print_exc()
         print(f"Warning: torchview graph generation failed: {e}")
-        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}, "positions": {}, "error": str(e)}
-
-
-def _compute_graphviz_layout(graph, nx_graph) -> dict[str, dict[str, float]]:
-    """
-    Use graphviz to compute layout positions matching the PNG output.
-    This uses the same graphviz graph that torchview creates.
-    """
-    import subprocess
-    
-    positions = {}
-    
-    try:
-        # Get the dot source from the visual_graph
-        dot_source = graph.visual_graph.source
-        
-        # Run graphviz to get positions
-        result = subprocess.run(
-            ['dot', '-Tplain'],
-            input=dot_source,
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode != 0:
-            print(f"Graphviz error: {result.stderr}")
-            return positions
-        
-        # Scale factors for spacing (adjust for frontend display)
-        x_scale = 80  # Horizontal spacing (lower = less space)
-        y_scale = 120  # Vertical spacing (higher = more space)
-        
-        # Parse plain output format
-        # Format: node name x y width height
-        for line in result.stdout.split('\n'):
-            parts = line.strip().split()
-            if parts and parts[0] == 'node':
-                node_name = parts[1]
-                x = float(parts[2]) * x_scale
-                y = float(parts[3]) * y_scale
-                
-                # Find matching node in NetworkX graph
-                # The graphviz node names are integer IDs from id_dict
-                for node_id in nx_graph.nodes():
-                    # Try to match by the integer ID in the node_id
-                    # Node IDs are like "conv2d_5" where 5 is the id_dict value
-                    if node_name.isdigit():
-                        # graphviz uses integer IDs
-                        int_id = int(node_name)
-                        if node_id.endswith(f"_{int_id}"):
-                            positions[node_id] = {"x": x, "y": y}
-                            break
-                    elif node_id == node_name or node_id.replace('.', '_').replace('-', '_') == node_name:
-                        positions[node_id] = {"x": x, "y": y}
-                        break
-                        
-        # If we couldn't match nodes, try a different approach
-        if len(positions) < len(nx_graph.nodes()) // 2:
-            positions = {}
-            # Parse nodes in order they appear
-            node_list = list(nx_graph.nodes())
-            node_idx = 0
-            for line in result.stdout.split('\n'):
-                parts = line.strip().split()
-                if parts and parts[0] == 'node' and node_idx < len(node_list):
-                    x = float(parts[2]) * x_scale
-                    y = float(parts[3]) * y_scale
-                    positions[node_list[node_idx]] = {"x": x, "y": y}
-                    node_idx += 1
-                    
-    except FileNotFoundError:
-        print("Warning: graphviz 'dot' command not found. Using fallback layout.")
-    except Exception as e:
-        print(f"Warning: graphviz layout failed: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    return positions
+        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}, "error": str(e)}
 
 
 def _sanitize_value(v: Any) -> Any:

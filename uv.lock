@@ -65,7 +65,7 @@ requires-dist = [
     { name = "graphviz", specifier = ">=0.20" },
     { name = "networkx", specifier = ">=3.0" },
     { name = "torch", specifier = ">=2.0.0" },
-    { name = "torchview", editable = "torchview" },
+    { name = "torchview", editable = "../torchview" },
     { name = "uvicorn", specifier = ">=0.23.0" },
 ]
 
@@ -1474,7 +1474,7 @@ wheels = [
 [[package]]
 name = "torchview"
 version = "0.2.7"
-source = { editable = "torchview" }
+source = { editable = "../torchview" }
 dependencies = [
     { name = "graphviz" },
     { name = "matplotlib" },
