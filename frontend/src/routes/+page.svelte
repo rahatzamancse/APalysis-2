@@ -2,12 +2,12 @@
 	import { onMount } from 'svelte';
 	import Graph from '$lib/components/Graph.svelte';
 	import { getGraph, getModelSummary } from '$lib/api';
-	import { computeLayout, type LayoutData } from '$lib/layout';
+	import { computeFlowLayout, type FlowLayoutData } from '$lib/layout';
 	import type { TorchviewGraphData, TorchviewNode, ModelSummary } from '$lib/types';
 
 	// State
 	let graphData = $state<TorchviewGraphData | null>(null);
-	let layoutData = $state<LayoutData | null>(null);
+	let layoutData = $state<FlowLayoutData | null>(null);
 	let selectedNodeId = $state<string | null>(null);
 	let selectedNode = $state<TorchviewNode | null>(null);
 	let modelSummary = $state<ModelSummary | null>(null);
@@ -32,9 +32,9 @@
 	});
 
 	// Compute layout when graph data changes
-	async function updateLayout(data: TorchviewGraphData) {
+	function updateLayout(data: TorchviewGraphData) {
 		try {
-			layoutData = await computeLayout(data);
+			layoutData = computeFlowLayout(data);
 		} catch (e) {
 			console.error('Layout computation failed:', e);
 		}
@@ -53,7 +53,7 @@
 			if (data.error) {
 				error = `Graph generation error: ${data.error}`;
 			} else {
-			await updateLayout(data);
+				updateLayout(data);
 			}
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load model';
