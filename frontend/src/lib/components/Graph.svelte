@@ -10,7 +10,7 @@
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
 
-	import { TensorNode, ModuleNode, FunctionNode, GroupNode } from './nodes';
+	import { TensorNode, FunctionNode, GroupNode } from './nodes';
 	import BackEdge from './edges/BackEdge.svelte';
 	import type { FlowLayoutData, FlowNode, FlowEdge } from '$lib/layout';
 	import { NODE_COLORS } from '$lib/types';
@@ -67,7 +67,6 @@
 	// Custom node types including group nodes for subflows
 	const nodeTypes: NodeTypes = {
 		tensor: TensorNode,
-		module: ModuleNode,
 		function: FunctionNode,
 		group: GroupNode
 	};
@@ -141,18 +140,10 @@
 			<div class="legend-item">
 				<span
 					class="legend-color"
-					style="background: {NODE_COLORS.module.background}; border-color: {NODE_COLORS.module
-						.border};"
-				></span>
-				<span>Module</span>
-			</div>
-			<div class="legend-item">
-				<span
-					class="legend-color"
 					style="background: {NODE_COLORS.function.background}; border-color: {NODE_COLORS.function
 						.border};"
 				></span>
-				<span>Function</span>
+				<span>Layer / Function</span>
 			</div>
 			<div class="legend-item">
 				<span class="legend-color subgraph-icon"></span>
@@ -223,9 +214,9 @@
 	}
 
 	.subgraph-icon {
-		background: rgba(240, 249, 255, 0.8) !important;
+		background: rgba(245, 245, 245, 0.4) !important;
 		border-style: dashed !important;
-		border-color: #93c5fd !important;
+		border-color: #d4d4d4 !important;
 	}
 
 	/* Svelte Flow overrides */

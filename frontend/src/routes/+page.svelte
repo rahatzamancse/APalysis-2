@@ -62,27 +62,14 @@
 		}
 	});
 
-	// Handle node selection (show details)
+	// Handle node selection (highlight only)
 	function handleNodeSelect(nodeId: string) {
 		selectedNodeId = nodeId;
-		isDetailsPanelOpen = true;
-
-		// Find node in graph data
-		if (graphData) {
-			selectedNode = graphData.nodes.find((n: TorchviewNode) => n.id === nodeId) || null;
-		}
 	}
 
 	// Handle background click
 	function handleBackgroundClick() {
 		selectedNodeId = null;
-		isDetailsPanelOpen = false;
-		selectedNode = null;
-	}
-
-	// Close details panel
-	function closeDetailsPanel() {
-		isDetailsPanelOpen = false;
 	}
 
 	// Format shape for display
@@ -192,106 +179,13 @@
 		{/if}
 	</main>
 
-	<!-- Details panel -->
-	<aside class="details-panel" class:open={isDetailsPanelOpen}>
-		<div class="panel-header">
-			<h3>Node Details</h3>
-		<button class="close-btn" onclick={closeDetailsPanel} title="Close details panel">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path d="M18 6L6 18M6 6l12 12" />
-			</svg>
-		</button>
-		</div>
-
-		{#if selectedNode}
-			<div class="panel-content">
-				<div class="detail-section">
-					<h4>General</h4>
-					<div class="detail-row">
-						<span class="detail-label">Name</span>
-						<span class="detail-value">{selectedNode.name}</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">Type</span>
-						<span class="detail-value type-badge" data-type={selectedNode.nodeType}>
-							{selectedNode.nodeType}
-						</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">Depth</span>
-						<span class="detail-value">{selectedNode.depth}</span>
-					</div>
-					{#if selectedNode.subgraphLabel}
-						<div class="detail-row">
-							<span class="detail-label">Module Group</span>
-							<span class="detail-value">{selectedNode.subgraphLabel}</span>
-						</div>
-					{/if}
-				</div>
-
-				{#if selectedNode.nodeType === 'tensor'}
-					<div class="detail-section">
-						<h4>Tensor Info</h4>
-						<div class="detail-row">
-							<span class="detail-label">Shape</span>
-							<span class="detail-value mono">{formatShape(selectedNode.tensorShape)}</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">Is Input</span>
-							<span class="detail-value">{selectedNode.isInput ? 'Yes' : 'No'}</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">Is Output</span>
-							<span class="detail-value">{selectedNode.isOutput ? 'Yes' : 'No'}</span>
-						</div>
-					</div>
-				{/if}
-
-				{#if selectedNode.nodeType === 'module' || selectedNode.nodeType === 'function'}
-					<div class="detail-section">
-						<h4>Shape Info</h4>
-						<div class="detail-row">
-							<span class="detail-label">Input</span>
-							<span class="detail-value mono">{formatShape(selectedNode.inputShape)}</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">Output</span>
-							<span class="detail-value mono">{formatShape(selectedNode.outputShape)}</span>
-						</div>
-						{#if selectedNode.typeName}
-							<div class="detail-row">
-								<span class="detail-label">Module Type</span>
-								<span class="detail-value">{selectedNode.typeName}</span>
-							</div>
-						{/if}
-						{#if selectedNode.isContainer !== undefined}
-							<div class="detail-row">
-								<span class="detail-label">Is Container</span>
-								<span class="detail-value">{selectedNode.isContainer ? 'Yes' : 'No'}</span>
-							</div>
-						{/if}
-					</div>
-				{/if}
-
-				<div class="detail-section">
-					<h4>Raw ID</h4>
-					<code class="raw-id">{selectedNode.id}</code>
-				</div>
-			</div>
-		{:else}
-			<div class="empty-state">
-				<p>Click on a node to view details</p>
-			</div>
-		{/if}
-	</aside>
-
 	<!-- Help tooltip -->
 	<div class="help-tooltip">
 		<button class="help-btn">?</button>
 		<div class="help-content">
 			<h4>How to use</h4>
 			<ul>
-				<li><strong>Click</strong> a node to view details</li>
+				<li><strong>Click</strong> a node to highlight</li>
 				<li><strong>Scroll</strong> to zoom</li>
 				<li><strong>Drag</strong> to pan</li>
 			</ul>
@@ -504,160 +398,6 @@
 
 	.error-state button:hover {
 		background: #2563eb;
-	}
-
-	/* Details Panel */
-	.details-panel {
-		position: fixed;
-		top: 60px;
-		right: 0;
-		bottom: 0;
-		width: 340px;
-		background: white;
-		border-left: 1px solid #e5e7eb;
-		box-shadow: -4px 0 20px rgba(0, 0, 0, 0.06);
-		transform: translateX(100%);
-		transition: transform 0.3s ease;
-		z-index: 100;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.details-panel.open {
-		transform: translateX(0);
-	}
-
-	.panel-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 16px 20px;
-		border-bottom: 1px solid #e5e7eb;
-	}
-
-	.panel-header h3 {
-		font-size: 14px;
-		font-weight: 600;
-		color: #374151;
-		margin: 0;
-	}
-
-	.close-btn {
-		width: 28px;
-		height: 28px;
-		border: none;
-		background: transparent;
-		border-radius: 6px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #9ca3af;
-		transition: all 0.15s ease;
-	}
-
-	.close-btn:hover {
-		background: #f3f4f6;
-		color: #4b5563;
-	}
-
-	.close-btn svg {
-		width: 16px;
-		height: 16px;
-	}
-
-	.panel-content {
-		flex: 1;
-		overflow-y: auto;
-		padding: 16px 20px;
-	}
-
-	.detail-section {
-		margin-bottom: 20px;
-	}
-
-	.detail-section h4 {
-		font-size: 11px;
-		font-weight: 600;
-		color: #9ca3af;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin: 0 0 12px;
-	}
-
-	.detail-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		padding: 8px 0;
-		border-bottom: 1px solid #f3f4f6;
-	}
-
-	.detail-row:last-child {
-		border-bottom: none;
-	}
-
-	.detail-label {
-		font-size: 12px;
-		color: #6b7280;
-	}
-
-	.detail-value {
-		font-size: 12px;
-		color: #1f2937;
-		font-weight: 500;
-		text-align: right;
-		max-width: 180px;
-		word-break: break-all;
-	}
-
-	.detail-value.mono {
-		font-family: 'SF Mono', 'Fira Code', monospace;
-		font-size: 11px;
-	}
-
-	.type-badge {
-		display: inline-block;
-		padding: 2px 8px;
-		border-radius: 4px;
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-	}
-
-	.type-badge[data-type='tensor'] {
-		background: #fef3c7;
-		color: #92400e;
-	}
-
-	.type-badge[data-type='module'] {
-		background: #d1fae5;
-		color: #065f46;
-	}
-
-	.type-badge[data-type='function'] {
-		background: #dbeafe;
-		color: #1e40af;
-	}
-
-	.raw-id {
-		display: block;
-		padding: 10px 12px;
-		background: #f9fafb;
-		border-radius: 6px;
-		font-size: 11px;
-		color: #6b7280;
-		word-break: break-all;
-		font-family: 'SF Mono', 'Fira Code', monospace;
-	}
-
-	.empty-state {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		color: #9ca3af;
-		font-size: 13px;
 	}
 
 	/* Help tooltip */

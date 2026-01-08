@@ -16,28 +16,21 @@
 
 <script lang="ts">
 	import { type NodeProps } from '@xyflow/svelte';
-	import { NODE_COLORS } from '$lib/types';
+	import { getLayerColor } from '$lib/types';
 	import BaseNode from './BaseNode.svelte';
 
 	type Props = NodeProps<FunctionNodeType>;
 	let { id, data, selected }: Props = $props();
 
 	const formatShape = (shape: unknown): string => {
-		if (!shape) return '';
+		if (!shape) return '-';
 		if (typeof shape === 'string') return shape;
 		if (Array.isArray(shape)) {
-			if (shape.length === 0) return '';
+			if (shape.length === 0) return '-';
 			if (Array.isArray(shape[0])) return formatShape(shape[0]);
 			return `(${shape.join(', ')})`;
 		}
 		return String(shape);
-	};
-
-	const getSublabel = (): string => {
-		const inShape = formatShape(data.inputShape);
-		const outShape = formatShape(data.outputShape);
-		if (inShape && outShape) return `${inShape} → ${outShape}`;
-		return outShape || inShape || '';
 	};
 </script>
 
@@ -45,10 +38,11 @@
 	{id}
 	{data}
 	{selected}
-	colorConfig={NODE_COLORS.function}
+	colorConfig={getLayerColor(data.typeName)}
 	label={data.label}
-	sublabel={getSublabel()}
-	nodeType="function"
+	typeName={data.typeName || 'Function'}
+	inputShape={formatShape(data.inputShape)}
+	outputShape={formatShape(data.outputShape)}
 	depth={data.depth}
 >
 	<!-- Slot for custom content -->

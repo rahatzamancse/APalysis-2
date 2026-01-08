@@ -30,12 +30,11 @@ export interface FlowNode extends Node {
 		isInput?: boolean;
 		isOutput?: boolean;
 		isAux?: boolean;
-		// Module/Function-specific
+		// Function-specific
 		inputShape?: unknown[];
 		outputShape?: unknown[];
 		typeName?: string;
 		isContainer?: boolean;
-		isActivation?: boolean;
 	};
 }
 
@@ -61,7 +60,7 @@ export interface FlowLayoutData {
  * Get node dimensions based on type.
  */
 function getNodeDimensions(_nodeType: string): { width: number; height: number } {
-	// All node types (tensor, function, module) use BaseNode which has
+	// All node types (tensor, function) use BaseNode which has
 	// min-width: 200px and min-height: 80px in CSS
 	return { width: NODE_WIDTH, height: NODE_HEIGHT };
 }
@@ -329,8 +328,7 @@ export function computeFlowLayout(graphData: TorchviewGraphData): FlowLayoutData
 				inputShape: node.inputShape,
 				outputShape: node.outputShape,
 				typeName: node.typeName,
-				isContainer: node.isContainer,
-				isActivation: node.isActivation
+				isContainer: node.isContainer
 			},
 			width: dims.width,
 			height: dims.height

@@ -119,7 +119,7 @@ def _get_or_build_graph() -> dict[str, Any]:
         return _cached_graph_data
 
     if _current_model is None:
-        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}}
+        return {"nodes": [], "edges": [], "subgraphs": {}}
 
     _cached_graph_data = _build_torchview_graph()
     return _cached_graph_data
@@ -130,7 +130,7 @@ def _build_torchview_graph() -> dict[str, Any]:
     from torchview import draw_graph
 
     if _current_model is None:
-        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}}
+        return {"nodes": [], "edges": [], "subgraphs": {}}
 
     # Use provided input size or try to infer it
     input_size = _current_input_size
@@ -151,8 +151,8 @@ def _build_torchview_graph() -> dict[str, Any]:
             _current_model,
             input_size=input_size,
             graph_name=_current_model_name,
-            depth=float("inf"),  # Show all depths
-            graph_dir="LR",  # Left to right layout
+            depth=float("inf"),
+            graph_dir="LR",
             expand_nested=True,
             hide_inner_tensors=True,
             hide_module_functions=False,
@@ -168,7 +168,7 @@ def _build_torchview_graph() -> dict[str, Any]:
         import traceback
         traceback.print_exc()
         print(f"Warning: torchview graph generation failed: {e}")
-        return {"nodes": [], "edges": [], "subgraphs": {}, "settings": {}, "error": str(e)}
+        return {"nodes": [], "edges": [], "subgraphs": {}, "error": str(e)}
 
 
 def _sanitize_value(v: Any) -> Any:
@@ -191,6 +191,11 @@ def _networkx_to_json(G) -> dict[str, Any]:
     """Convert NetworkX graph to JSON-serializable format for frontend."""
     nodes = []
     for node_id, attrs in G.nodes(data=True):
+        if attrs.get("node_type") == "tensor":
+             is_io = attrs.get("is_input", False) or attrs.get("is_output", False)
+             if not is_io:
+                 continue
+
         node_data = {
             "id": node_id,
             "name": attrs.get("name", node_id),
@@ -211,8 +216,6 @@ def _networkx_to_json(G) -> dict[str, Any]:
             node_data["outputShape"] = _serialize_shape(attrs.get("output_shape", []))
             node_data["typeName"] = attrs.get("type_name", "")
             node_data["isContainer"] = attrs.get("is_container", False)
-            if attrs.get("node_type") == "module":
-                node_data["isActivation"] = attrs.get("is_activation", False)
 
         nodes.append(node_data)
 
@@ -235,13 +238,10 @@ def _networkx_to_json(G) -> dict[str, Any]:
             "depth": sg_info.get("depth", 0),
         }
 
-    settings = _sanitize_value(G.graph.get("settings", {}))
-
     return {
         "nodes": nodes,
         "edges": edges,
         "subgraphs": subgraphs,
-        "settings": settings,
     }
 
 

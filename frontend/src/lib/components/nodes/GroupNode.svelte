@@ -17,12 +17,12 @@
 
 	// Colors for different nesting levels
 	const subgraphColors = [
-		{ fill: 'rgba(240, 249, 255, 0.8)', stroke: '#93c5fd' }, // Level 1
-		{ fill: 'rgba(250, 245, 255, 0.8)', stroke: '#c4b5fd' }, // Level 2
-		{ fill: 'rgba(254, 252, 232, 0.8)', stroke: '#fcd34d' }, // Level 3
-		{ fill: 'rgba(240, 253, 244, 0.8)', stroke: '#86efac' }, // Level 4
-		{ fill: 'rgba(255, 241, 242, 0.8)', stroke: '#fda4af' }, // Level 5
-		{ fill: 'rgba(248, 250, 252, 0.8)', stroke: '#cbd5e1' }  // Level 6+
+		{ fill: 'rgba(245, 245, 245, 0.4)', stroke: '#d4d4d4' }, // Level 1 (Lightest)
+		{ fill: 'rgba(235, 235, 235, 0.4)', stroke: '#a3a3a3' }, // Level 2
+		{ fill: 'rgba(225, 225, 225, 0.4)', stroke: '#737373' }, // Level 3
+		{ fill: 'rgba(215, 215, 215, 0.4)', stroke: '#525252' }, // Level 4
+		{ fill: 'rgba(205, 205, 205, 0.4)', stroke: '#404040' }, // Level 5
+		{ fill: 'rgba(195, 195, 195, 0.4)', stroke: '#262626' }  // Level 6+ (Darkest)
 	];
 
 	function getColor(depth: number) {

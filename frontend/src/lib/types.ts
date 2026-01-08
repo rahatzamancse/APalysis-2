@@ -3,7 +3,7 @@
  */
 
 /** Node types from torchview */
-export type NodeType = 'tensor' | 'module' | 'function' | 'unknown';
+export type NodeType = 'tensor' | 'function' | 'unknown';
 
 /** A node in the torchview graph */
 export interface TorchviewNode {
@@ -25,7 +25,6 @@ export interface TorchviewNode {
 	outputShape?: unknown[];
 	typeName?: string;
 	isContainer?: boolean;
-	isActivation?: boolean;
 }
 
 /** An edge in the torchview graph */
@@ -44,22 +43,11 @@ export interface Subgraph {
 	depth: number;
 }
 
-/** Settings from torchview */
-export interface GraphSettings {
-	show_shapes?: boolean;
-	expand_nested?: boolean;
-	hide_inner_tensors?: boolean;
-	hide_module_functions?: boolean;
-	depth?: number;
-	roll?: boolean;
-}
-
 /** The complete graph data from the API */
 export interface TorchviewGraphData {
 	nodes: TorchviewNode[];
 	edges: TorchviewEdge[];
 	subgraphs: Record<string, Subgraph>;
-	settings: GraphSettings;
 	error?: string;
 }
 
@@ -121,12 +109,6 @@ export const NODE_COLORS: Record<NodeType, NodeColorConfig> = {
 		text: '#8B7500',
 		headerBg: '#FFF9D6'
 	},
-	module: {
-		background: '#F0FFF4',
-		border: '#2E8B57',
-		text: '#1D5C38',
-		headerBg: '#E0FFE8'
-	},
 	function: {
 		background: '#F0F8FF',
 		border: '#4169E1',
@@ -140,3 +122,59 @@ export const NODE_COLORS: Record<NodeType, NodeColorConfig> = {
 		headerBg: '#E9ECEF'
 	}
 };
+
+export const LAYER_COLORS: Record<string, NodeColorConfig> = {
+	'Conv2d': {
+		background: '#E0F2F1', // Teal 50
+		border: '#009688',     // Teal 500
+		text: '#00695C',       // Teal 800
+		headerBg: '#B2DFDB'    // Teal 100
+	},
+	'Linear': {
+		background: '#EDE7F6', // Deep Purple 50
+		border: '#673AB7',     // Deep Purple 500
+		text: '#4527A0',       // Deep Purple 800
+		headerBg: '#D1C4E9'    // Deep Purple 100
+	},
+	'BatchNorm2d': {
+		background: '#FFF3E0', // Orange 50
+		border: '#FF9800',     // Orange 500
+		text: '#E65100',       // Orange 800
+		headerBg: '#FFE0B2'    // Orange 100
+	},
+	'ReLU': {
+		background: '#FFEBEE', // Red 50
+		border: '#F44336',     // Red 500
+		text: '#B71C1C',       // Red 800
+		headerBg: '#FFCDD2'    // Red 100
+	},
+	'MaxPool2d': {
+		background: '#E3F2FD', // Blue 50
+		border: '#2196F3',     // Blue 500
+		text: '#0D47A1',       // Blue 800
+		headerBg: '#BBDEFB'    // Blue 100
+	},
+	'Dropout': {
+		background: '#F3E5F5', // Purple 50
+		border: '#9C27B0',     // Purple 500
+		text: '#4A148C',       // Purple 800
+		headerBg: '#E1BEE7'    // Purple 100
+	}
+};
+
+export function getLayerColor(typeName: string | undefined): NodeColorConfig {
+	if (!typeName) return NODE_COLORS.function;
+	
+	// Direct match
+	if (LAYER_COLORS[typeName]) return LAYER_COLORS[typeName];
+	
+	// Fuzzy matching or defaults
+	if (typeName.includes('Conv')) return LAYER_COLORS['Conv2d'];
+	if (typeName.includes('Linear')) return LAYER_COLORS['Linear'];
+	if (typeName.includes('Norm')) return LAYER_COLORS['BatchNorm2d'];
+	if (typeName.includes('ReLU') || typeName.includes('SiLU') || typeName.includes('GELU')) return LAYER_COLORS['ReLU'];
+	if (typeName.includes('Pool')) return LAYER_COLORS['MaxPool2d'];
+	if (typeName.includes('Dropout')) return LAYER_COLORS['Dropout'];
+	
+	return NODE_COLORS.function;
+}
