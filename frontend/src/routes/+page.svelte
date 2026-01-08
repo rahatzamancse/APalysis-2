@@ -3,30 +3,28 @@
 	import Graph from '$lib/components/Graph.svelte';
 	import { getGraph, getModelSummary } from '$lib/api';
 	import { computeFlowLayout, type FlowLayoutData } from '$lib/layout';
-	import type { TorchviewGraphData, TorchviewNode, ModelSummary } from '$lib/types';
+	import type { TorchviewGraphData, ModelSummary, TorchviewNode } from '$lib/types';
 
 	// State
 	let graphData = $state<TorchviewGraphData | null>(null);
 	let layoutData = $state<FlowLayoutData | null>(null);
 	let selectedNodeId = $state<string | null>(null);
-	let selectedNode = $state<TorchviewNode | null>(null);
 	let modelSummary = $state<ModelSummary | null>(null);
 	let isLoading = $state(true);
 	let error = $state<string | null>(null);
-	let isDetailsPanelOpen = $state(false);
 
 	// Stats derived from graph data
 	const graphStats = $derived(() => {
 		if (!graphData) return null;
 		const tensorCount = graphData.nodes.filter((n: TorchviewNode) => n.nodeType === 'tensor').length;
-		const moduleCount = graphData.nodes.filter((n: TorchviewNode) => n.nodeType === 'module').length;
 		const functionCount = graphData.nodes.filter((n: TorchviewNode) => n.nodeType === 'function').length;
+		const unknownCount = graphData.nodes.filter((n: TorchviewNode) => n.nodeType === 'unknown').length;
 		return {
 			nodes: graphData.nodes.length,
 			edges: graphData.edges.length,
 			tensors: tensorCount,
-			modules: moduleCount,
 			functions: functionCount,
+			unknown: unknownCount,
 			subgraphs: Object.keys(graphData.subgraphs).length
 		};
 	});
@@ -62,7 +60,7 @@
 		}
 	});
 
-	// Handle node selection (highlight only)
+	// Handle node selection
 	function handleNodeSelect(nodeId: string) {
 		selectedNodeId = nodeId;
 	}
@@ -70,17 +68,6 @@
 	// Handle background click
 	function handleBackgroundClick() {
 		selectedNodeId = null;
-	}
-
-	// Format shape for display
-	function formatShape(shape: unknown): string {
-		if (!shape) return '-';
-		if (typeof shape === 'string') return shape;
-		if (Array.isArray(shape)) {
-			if (shape.length === 0) return '-';
-			return JSON.stringify(shape);
-		}
-		return String(shape);
 	}
 </script>
 
@@ -185,7 +172,7 @@
 		<div class="help-content">
 			<h4>How to use</h4>
 			<ul>
-				<li><strong>Click</strong> a node to highlight</li>
+				<li><strong>Click</strong> a node to view details</li>
 				<li><strong>Scroll</strong> to zoom</li>
 				<li><strong>Drag</strong> to pan</li>
 			</ul>
@@ -193,7 +180,6 @@
 				{#if graphStats()}
 					<p>
 						<strong>{graphStats()?.tensors}</strong> tensors ·
-						<strong>{graphStats()?.modules}</strong> modules ·
 						<strong>{graphStats()?.functions}</strong> functions
 					</p>
 				{/if}

@@ -338,6 +338,7 @@ export function computeFlowLayout(graphData: TorchviewGraphData): FlowLayoutData
 	// Convert edges to Svelte Flow format
 	const flowEdges: FlowEdge[] = edges.map((edge) => {
 		const isBackEdge = backEdges.has(`${edge.source}->${edge.target}`);
+		const label = edge.count > 1 ? `×${edge.count}` : undefined;
 
 		return {
 			id: `${edge.source}-${edge.target}`,
@@ -348,6 +349,11 @@ export function computeFlowLayout(graphData: TorchviewGraphData): FlowLayoutData
 			type: isBackEdge ? 'back' : 'default', // Use custom 'back' type for back edges
 			animated: isBackEdge,
 			zIndex: 5, // Above group nodes (-10), below regular nodes (10)
+			label,
+			labelStyle: label ? 'font-size: 11px; font-weight: 600; fill: #6b7280;' : undefined,
+			labelBgStyle: label ? 'fill: white; fill-opacity: 0.9;' : undefined,
+			labelBgPadding: label ? [4, 6] as [number, number] : undefined,
+			labelBgBorderRadius: label ? 4 : undefined,
 			markerEnd: {
 				type: MarkerType.ArrowClosed,
 				width: 20,

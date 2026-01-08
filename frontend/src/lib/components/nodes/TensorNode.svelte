@@ -28,6 +28,8 @@
 		if (Array.isArray(shape)) return `(${shape.join(', ')})`;
 		return String(shape);
 	};
+
+	const shapeStr = $derived(formatShape(data.tensorShape));
 </script>
 
 <BaseNode
@@ -36,8 +38,9 @@
 	{selected}
 	colorConfig={NODE_COLORS.tensor}
 	label={data.label}
-	sublabel={formatShape(data.tensorShape)}
-	nodeType="tensor"
+	layerType="tensor"
+	outputShape={shapeStr}
+	nodeId={id}
 	isInput={data.isInput}
 	isOutput={data.isOutput}
 	depth={data.depth}

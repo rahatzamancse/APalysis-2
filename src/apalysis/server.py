@@ -189,7 +189,8 @@ def _sanitize_value(v: Any) -> Any:
 
 def _networkx_to_json(G) -> dict[str, Any]:
     """Convert NetworkX graph to JSON-serializable format for frontend."""
-    nodes = []
+    # First pass: collect all nodes with their original subgraph assignments
+    raw_nodes = []
     for node_id, attrs in G.nodes(data=True):
         if attrs.get("node_type") == "tensor":
              is_io = attrs.get("is_input", False) or attrs.get("is_output", False)
@@ -217,6 +218,68 @@ def _networkx_to_json(G) -> dict[str, Any]:
             node_data["typeName"] = attrs.get("type_name", "")
             node_data["isContainer"] = attrs.get("is_container", False)
 
+        raw_nodes.append(node_data)
+
+    # Extract all subgraphs info from torchview
+    all_subgraphs = {}
+    for sg_id, sg_info in G.graph.get("subgraphs", {}).items():
+        all_subgraphs[sg_id] = {
+            "label": sg_info.get("label", sg_id),
+            "parent": sg_info.get("parent"),
+            "moduleName": sg_info.get("module_name", ""),
+            "moduleType": sg_info.get("module_type", ""),
+            "depth": sg_info.get("depth", 0),
+        }
+
+    # Filter subgraphs: only keep those with at least 2 children (nodes + child subgraphs)
+    # Iterate until no more changes (to handle cascading single-child removals)
+    subgraphs = dict(all_subgraphs)
+    node_subgraphs = {n["id"]: n["subgraph"] for n in raw_nodes}
+    
+    changed = True
+    while changed:
+        changed = False
+        
+        # Count direct children for each subgraph
+        # Children = nodes directly in this subgraph + child subgraphs
+        child_count: dict[str, int] = {sg_id: 0 for sg_id in subgraphs}
+        
+        # Count nodes in each subgraph
+        for node_id, sg_id in node_subgraphs.items():
+            if sg_id and sg_id in child_count:
+                child_count[sg_id] += 1
+        
+        # Count child subgraphs
+        for sg_id, sg_info in subgraphs.items():
+            parent = sg_info.get("parent")
+            if parent and parent in child_count:
+                child_count[parent] += 1
+        
+        # Find subgraphs to remove (0 or 1 children)
+        to_remove = [sg_id for sg_id, count in child_count.items() if count <= 1]
+        
+        if to_remove:
+            changed = True
+            for sg_id in to_remove:
+                parent = subgraphs[sg_id].get("parent")
+                
+                # Reassign nodes from this subgraph to its parent
+                for node_id, node_sg in list(node_subgraphs.items()):
+                    if node_sg == sg_id:
+                        node_subgraphs[node_id] = parent
+                
+                # Reassign child subgraphs to the parent
+                for other_sg_id, other_sg_info in subgraphs.items():
+                    if other_sg_info.get("parent") == sg_id:
+                        other_sg_info["parent"] = parent
+                
+                # Remove the subgraph
+                del subgraphs[sg_id]
+
+    # Update nodes with filtered subgraph assignments
+    nodes = []
+    for node_data in raw_nodes:
+        node_data["subgraph"] = node_subgraphs.get(node_data["id"])
         nodes.append(node_data)
 
     edges = []
@@ -226,17 +289,6 @@ def _networkx_to_json(G) -> dict[str, Any]:
             "target": target,
             "count": attrs.get("count", 1),
         })
-
-    # Extract subgraphs info
-    subgraphs = {}
-    for sg_id, sg_info in G.graph.get("subgraphs", {}).items():
-        subgraphs[sg_id] = {
-            "label": sg_info.get("label", sg_id),
-            "parent": sg_info.get("parent"),
-            "moduleName": sg_info.get("module_name", ""),
-            "moduleType": sg_info.get("module_type", ""),
-            "depth": sg_info.get("depth", 0),
-        }
 
     return {
         "nodes": nodes,

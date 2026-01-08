@@ -16,33 +16,47 @@
 
 <script lang="ts">
 	import { type NodeProps } from '@xyflow/svelte';
-	import { getLayerColor } from '$lib/types';
+	import { getLayerTypeColor } from '$lib/types';
 	import BaseNode from './BaseNode.svelte';
 
 	type Props = NodeProps<FunctionNodeType>;
 	let { id, data, selected }: Props = $props();
 
 	const formatShape = (shape: unknown): string => {
-		if (!shape) return '-';
+		if (!shape) return '';
 		if (typeof shape === 'string') return shape;
 		if (Array.isArray(shape)) {
-			if (shape.length === 0) return '-';
+			if (shape.length === 0) return '';
 			if (Array.isArray(shape[0])) return formatShape(shape[0]);
 			return `(${shape.join(', ')})`;
 		}
 		return String(shape);
 	};
+
+	// Get the layer type from typeName or extract from label
+	const getLayerType = (): string => {
+		if (data.typeName) return data.typeName;
+		// Try to extract from label (e.g., "relu_1" -> "relu")
+		const match = data.label.match(/^([a-zA-Z_]+)/);
+		return match ? match[1] : '';
+	};
+
+	const layerType = $derived(getLayerType());
+	const colorConfig = $derived(getLayerTypeColor(layerType));
+	const inputShapeStr = $derived(formatShape(data.inputShape));
+	const outputShapeStr = $derived(formatShape(data.outputShape));
 </script>
 
 <BaseNode
 	{id}
 	{data}
 	{selected}
-	colorConfig={getLayerColor(data.typeName)}
+	{colorConfig}
 	label={data.label}
-	typeName={data.typeName || 'Function'}
-	inputShape={formatShape(data.inputShape)}
-	outputShape={formatShape(data.outputShape)}
+	{layerType}
+	inputShape={inputShapeStr}
+	outputShape={outputShapeStr}
+	nodeId={id}
 	depth={data.depth}
 >
 	<!-- Slot for custom content -->

@@ -13,7 +13,7 @@
 	import { TensorNode, FunctionNode, GroupNode } from './nodes';
 	import BackEdge from './edges/BackEdge.svelte';
 	import type { FlowLayoutData, FlowNode, FlowEdge } from '$lib/layout';
-	import { NODE_COLORS } from '$lib/types';
+	import { NODE_COLORS, LAYER_TYPE_COLORS } from '$lib/types';
 
 	interface Props {
 		layoutData: FlowLayoutData;
@@ -127,27 +127,76 @@
 
 	<!-- Legend -->
 	<div class="legend">
-		<div class="legend-title">Legend</div>
+		<div class="legend-title">Layer Types</div>
 		<div class="legend-items">
+			<!-- Convolution -->
 			<div class="legend-item">
 				<span
 					class="legend-color"
-					style="background: {NODE_COLORS.tensor.background}; border-color: {NODE_COLORS.tensor
-						.border};"
+					style="background: {LAYER_TYPE_COLORS.conv2d.background}; border-color: {LAYER_TYPE_COLORS.conv2d.border};"
+				></span>
+				<span>Conv</span>
+			</div>
+			<!-- Activation -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.relu.background}; border-color: {LAYER_TYPE_COLORS.relu.border};"
+				></span>
+				<span>Activation</span>
+			</div>
+			<!-- Normalization -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.batch_norm.background}; border-color: {LAYER_TYPE_COLORS.batch_norm.border};"
+				></span>
+				<span>Norm</span>
+			</div>
+			<!-- Pooling -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.max_pool.background}; border-color: {LAYER_TYPE_COLORS.max_pool.border};"
+				></span>
+				<span>Pool</span>
+			</div>
+			<!-- Linear -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.linear.background}; border-color: {LAYER_TYPE_COLORS.linear.border};"
+				></span>
+				<span>Linear</span>
+			</div>
+			<!-- Dropout -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.dropout.background}; border-color: {LAYER_TYPE_COLORS.dropout.border};"
+				></span>
+				<span>Dropout</span>
+			</div>
+			<!-- Attention -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {LAYER_TYPE_COLORS.attention.background}; border-color: {LAYER_TYPE_COLORS.attention.border};"
+				></span>
+				<span>Attention</span>
+			</div>
+			<!-- Tensor -->
+			<div class="legend-item">
+				<span
+					class="legend-color"
+					style="background: {NODE_COLORS.tensor.background}; border-color: {NODE_COLORS.tensor.border};"
 				></span>
 				<span>Tensor</span>
 			</div>
+			<!-- Module Group -->
 			<div class="legend-item">
-				<span
-					class="legend-color"
-					style="background: {NODE_COLORS.function.background}; border-color: {NODE_COLORS.function
-						.border};"
-				></span>
-				<span>Layer / Function</span>
-			</div>
-			<div class="legend-item">
-				<span class="legend-color subgraph-icon"></span>
-				<span>Module Group</span>
+				<span class="legend-color group-icon"></span>
+				<span>Group</span>
 			</div>
 		</div>
 	</div>
@@ -178,45 +227,47 @@
 		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 10px;
-		padding: 12px 16px;
+		padding: 10px 14px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 		z-index: 10;
+		max-width: 120px;
 	}
 
 	.legend-title {
-		font-size: 11px;
+		font-size: 10px;
 		font-weight: 600;
 		color: #6b7280;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		margin-bottom: 10px;
+		margin-bottom: 8px;
 	}
 
 	.legend-items {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 5px;
 	}
 
 	.legend-item {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 12px;
+		font-size: 11px;
 		color: #4b5563;
 	}
 
 	.legend-color {
-		width: 16px;
-		height: 16px;
-		border-radius: 4px;
-		border: 2px solid;
+		width: 14px;
+		height: 14px;
+		border-radius: 3px;
+		border: 1.5px solid;
+		flex-shrink: 0;
 	}
 
-	.subgraph-icon {
-		background: rgba(245, 245, 245, 0.4) !important;
+	.group-icon {
+		background: rgba(220, 220, 220, 0.5) !important;
 		border-style: dashed !important;
-		border-color: #d4d4d4 !important;
+		border-color: rgb(160, 160, 160) !important;
 	}
 
 	/* Svelte Flow overrides */
@@ -260,10 +311,15 @@
 	}
 
 	:global(.svelte-flow__controls) {
-		bottom: 24px;
-		right: 24px;
-		left: auto;
-		top: auto;
+		position: absolute !important;
+		bottom: 24px !important;
+		right: 24px !important;
+		left: unset !important;
+		top: unset !important;
+		width: auto !important;
+		border: none !important;
+		box-shadow: none !important;
+		background: transparent !important;
 	}
 
 	:global(.svelte-flow__controls-button) {

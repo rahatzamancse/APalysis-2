@@ -15,22 +15,21 @@
 	type Props = NodeProps<GroupNodeType>;
 	let { data, width = 200, height = 100 }: Props = $props();
 
-	// Colors for different nesting levels
-	const subgraphColors = [
-		{ fill: 'rgba(245, 245, 245, 0.4)', stroke: '#d4d4d4' }, // Level 1 (Lightest)
-		{ fill: 'rgba(235, 235, 235, 0.4)', stroke: '#a3a3a3' }, // Level 2
-		{ fill: 'rgba(225, 225, 225, 0.4)', stroke: '#737373' }, // Level 3
-		{ fill: 'rgba(215, 215, 215, 0.4)', stroke: '#525252' }, // Level 4
-		{ fill: 'rgba(205, 205, 205, 0.4)', stroke: '#404040' }, // Level 5
-		{ fill: 'rgba(195, 195, 195, 0.4)', stroke: '#262626' }  // Level 6+ (Darkest)
-	];
-
-	function getColor(depth: number) {
-		const idx = Math.min((depth || 1) - 1, subgraphColors.length - 1);
-		return subgraphColors[Math.max(0, idx)];
+	// Gray shades with opacity based on depth - darker as depth increases
+	function getGrayColor(depth: number) {
+		// Base gray value decreases (darker) as depth increases
+		// depth 1 = lightest gray, higher depths = darker grays
+		const baseGray = Math.max(180, 240 - (depth - 1) * 20); // 240, 220, 200, 180, etc.
+		const opacity = 0.4 + Math.min(depth * 0.08, 0.35); // 0.48, 0.56, 0.64, etc. up to ~0.75
+		const strokeGray = Math.max(100, baseGray - 40);
+		
+		return {
+			fill: `rgba(${baseGray}, ${baseGray}, ${baseGray}, ${opacity})`,
+			stroke: `rgb(${strokeGray}, ${strokeGray}, ${strokeGray})`
+		};
 	}
 
-	const colors = $derived(getColor(data?.depth ?? 1));
+	const colors = $derived(getGrayColor(data?.depth ?? 1));
 	const safeWidth = $derived(width ?? 200);
 	const safeHeight = $derived(height ?? 100);
 </script>

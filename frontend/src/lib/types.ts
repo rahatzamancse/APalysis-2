@@ -123,58 +123,259 @@ export const NODE_COLORS: Record<NodeType, NodeColorConfig> = {
 	}
 };
 
-export const LAYER_COLORS: Record<string, NodeColorConfig> = {
-	'Conv2d': {
-		background: '#E0F2F1', // Teal 50
-		border: '#009688',     // Teal 500
-		text: '#00695C',       // Teal 800
-		headerBg: '#B2DFDB'    // Teal 100
+/** Layer type color configuration for function nodes */
+export const LAYER_TYPE_COLORS: Record<string, NodeColorConfig> = {
+	// Convolution layers - Blue shades
+	conv2d: {
+		background: '#EBF5FF',
+		border: '#3B82F6',
+		text: '#1E40AF',
+		headerBg: '#DBEAFE'
 	},
-	'Linear': {
-		background: '#EDE7F6', // Deep Purple 50
-		border: '#673AB7',     // Deep Purple 500
-		text: '#4527A0',       // Deep Purple 800
-		headerBg: '#D1C4E9'    // Deep Purple 100
+	conv1d: {
+		background: '#E0F2FE',
+		border: '#0EA5E9',
+		text: '#0369A1',
+		headerBg: '#BAE6FD'
 	},
-	'BatchNorm2d': {
-		background: '#FFF3E0', // Orange 50
-		border: '#FF9800',     // Orange 500
-		text: '#E65100',       // Orange 800
-		headerBg: '#FFE0B2'    // Orange 100
+	conv3d: {
+		background: '#E0E7FF',
+		border: '#6366F1',
+		text: '#3730A3',
+		headerBg: '#C7D2FE'
 	},
-	'ReLU': {
-		background: '#FFEBEE', // Red 50
-		border: '#F44336',     // Red 500
-		text: '#B71C1C',       // Red 800
-		headerBg: '#FFCDD2'    // Red 100
+	// Activation functions - Green/Teal shades
+	relu: {
+		background: '#ECFDF5',
+		border: '#10B981',
+		text: '#047857',
+		headerBg: '#D1FAE5'
 	},
-	'MaxPool2d': {
-		background: '#E3F2FD', // Blue 50
-		border: '#2196F3',     // Blue 500
-		text: '#0D47A1',       // Blue 800
-		headerBg: '#BBDEFB'    // Blue 100
+	leaky_relu: {
+		background: '#F0FDF4',
+		border: '#22C55E',
+		text: '#15803D',
+		headerBg: '#DCFCE7'
 	},
-	'Dropout': {
-		background: '#F3E5F5', // Purple 50
-		border: '#9C27B0',     // Purple 500
-		text: '#4A148C',       // Purple 800
-		headerBg: '#E1BEE7'    // Purple 100
+	gelu: {
+		background: '#CCFBF1',
+		border: '#14B8A6',
+		text: '#0F766E',
+		headerBg: '#99F6E4'
+	},
+	sigmoid: {
+		background: '#D1FAE5',
+		border: '#059669',
+		text: '#065F46',
+		headerBg: '#A7F3D0'
+	},
+	tanh: {
+		background: '#CFFAFE',
+		border: '#06B6D4',
+		text: '#0E7490',
+		headerBg: '#A5F3FC'
+	},
+	softmax: {
+		background: '#F0FDFA',
+		border: '#2DD4BF',
+		text: '#0D9488',
+		headerBg: '#CCFBF1'
+	},
+	silu: {
+		background: '#E0FFF4',
+		border: '#34D399',
+		text: '#059669',
+		headerBg: '#A7F3D0'
+	},
+	// Normalization layers - Purple shades
+	batch_norm: {
+		background: '#FAF5FF',
+		border: '#A855F7',
+		text: '#7E22CE',
+		headerBg: '#F3E8FF'
+	},
+	batchnorm2d: {
+		background: '#FAF5FF',
+		border: '#A855F7',
+		text: '#7E22CE',
+		headerBg: '#F3E8FF'
+	},
+	layer_norm: {
+		background: '#FDF4FF',
+		border: '#D946EF',
+		text: '#A21CAF',
+		headerBg: '#FAE8FF'
+	},
+	layernorm: {
+		background: '#FDF4FF',
+		border: '#D946EF',
+		text: '#A21CAF',
+		headerBg: '#FAE8FF'
+	},
+	group_norm: {
+		background: '#F5F3FF',
+		border: '#8B5CF6',
+		text: '#6D28D9',
+		headerBg: '#EDE9FE'
+	},
+	instance_norm: {
+		background: '#EEF2FF',
+		border: '#818CF8',
+		text: '#4F46E5',
+		headerBg: '#E0E7FF'
+	},
+	// Pooling layers - Orange/Amber shades
+	max_pool: {
+		background: '#FFF7ED',
+		border: '#F97316',
+		text: '#C2410C',
+		headerBg: '#FFEDD5'
+	},
+	maxpool2d: {
+		background: '#FFF7ED',
+		border: '#F97316',
+		text: '#C2410C',
+		headerBg: '#FFEDD5'
+	},
+	avg_pool: {
+		background: '#FFFBEB',
+		border: '#F59E0B',
+		text: '#B45309',
+		headerBg: '#FEF3C7'
+	},
+	avgpool2d: {
+		background: '#FFFBEB',
+		border: '#F59E0B',
+		text: '#B45309',
+		headerBg: '#FEF3C7'
+	},
+	adaptive_avg_pool: {
+		background: '#FEF9C3',
+		border: '#EAB308',
+		text: '#A16207',
+		headerBg: '#FEF08A'
+	},
+	adaptiveavgpool2d: {
+		background: '#FEF9C3',
+		border: '#EAB308',
+		text: '#A16207',
+		headerBg: '#FEF08A'
+	},
+	// Linear/Dense layers - Indigo shades
+	linear: {
+		background: '#EEF2FF',
+		border: '#6366F1',
+		text: '#4338CA',
+		headerBg: '#E0E7FF'
+	},
+	dense: {
+		background: '#EEF2FF',
+		border: '#6366F1',
+		text: '#4338CA',
+		headerBg: '#E0E7FF'
+	},
+	// Dropout - Red/Rose shades
+	dropout: {
+		background: '#FFF1F2',
+		border: '#F43F5E',
+		text: '#BE123C',
+		headerBg: '#FFE4E6'
+	},
+	// Embedding - Cyan shades
+	embedding: {
+		background: '#ECFEFF',
+		border: '#22D3EE',
+		text: '#0891B2',
+		headerBg: '#CFFAFE'
+	},
+	// Attention - Pink shades
+	attention: {
+		background: '#FDF2F8',
+		border: '#EC4899',
+		text: '#BE185D',
+		headerBg: '#FCE7F3'
+	},
+	multiheadattention: {
+		background: '#FDF2F8',
+		border: '#EC4899',
+		text: '#BE185D',
+		headerBg: '#FCE7F3'
+	},
+	// Flatten/Reshape - Slate shades
+	flatten: {
+		background: '#F8FAFC',
+		border: '#64748B',
+		text: '#334155',
+		headerBg: '#F1F5F9'
+	},
+	reshape: {
+		background: '#F8FAFC',
+		border: '#64748B',
+		text: '#334155',
+		headerBg: '#F1F5F9'
+	},
+	view: {
+		background: '#F8FAFC',
+		border: '#64748B',
+		text: '#334155',
+		headerBg: '#F1F5F9'
+	},
+	// Math operations - Stone shades
+	add: {
+		background: '#FAFAF9',
+		border: '#78716C',
+		text: '#44403C',
+		headerBg: '#F5F5F4'
+	},
+	mul: {
+		background: '#FAFAF9',
+		border: '#78716C',
+		text: '#44403C',
+		headerBg: '#F5F5F4'
+	},
+	matmul: {
+		background: '#FAFAF9',
+		border: '#78716C',
+		text: '#44403C',
+		headerBg: '#F5F5F4'
+	},
+	cat: {
+		background: '#FAFAF9',
+		border: '#78716C',
+		text: '#44403C',
+		headerBg: '#F5F5F4'
+	},
+	concat: {
+		background: '#FAFAF9',
+		border: '#78716C',
+		text: '#44403C',
+		headerBg: '#F5F5F4'
 	}
 };
 
-export function getLayerColor(typeName: string | undefined): NodeColorConfig {
-	if (!typeName) return NODE_COLORS.function;
+/** Get color config for a layer type, with fallback to default function color */
+export function getLayerTypeColor(layerType: string | undefined): NodeColorConfig {
+	if (!layerType) return NODE_COLORS.function;
 	
-	// Direct match
-	if (LAYER_COLORS[typeName]) return LAYER_COLORS[typeName];
+	// Normalize the layer type: lowercase and replace common variations
+	const normalized = layerType
+		.toLowerCase()
+		.replace(/[-\s]/g, '_')
+		.replace(/^nn\./, '')
+		.replace(/^torch\./, '');
 	
-	// Fuzzy matching or defaults
-	if (typeName.includes('Conv')) return LAYER_COLORS['Conv2d'];
-	if (typeName.includes('Linear')) return LAYER_COLORS['Linear'];
-	if (typeName.includes('Norm')) return LAYER_COLORS['BatchNorm2d'];
-	if (typeName.includes('ReLU') || typeName.includes('SiLU') || typeName.includes('GELU')) return LAYER_COLORS['ReLU'];
-	if (typeName.includes('Pool')) return LAYER_COLORS['MaxPool2d'];
-	if (typeName.includes('Dropout')) return LAYER_COLORS['Dropout'];
+	// Try exact match first
+	if (LAYER_TYPE_COLORS[normalized]) {
+		return LAYER_TYPE_COLORS[normalized];
+	}
 	
+	// Try partial matches for common patterns
+	for (const [key, color] of Object.entries(LAYER_TYPE_COLORS)) {
+		if (normalized.includes(key) || key.includes(normalized)) {
+			return color;
+		}
+	}
+	
+	// Default fallback
 	return NODE_COLORS.function;
 }
